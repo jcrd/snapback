@@ -1,0 +1,100 @@
+#!/bin/bash
+
+# This project is licensed under the MIT License (see LICENSE).
+
+set -euo pipefail
+
+readonly VERSION=@VERSION
+
+readonly config='/etc/snapback.conf'
+
+usage() {
+    echo 'usage: snapback [-hv]
+
+Enable with `systemctl enable snapback.timer`.'
+}
+
+check_dir() {
+    if [[ ! -d "$1" ]]; then
+        echo "$1 does not exist" >&2
+        exit 1
+    fi
+}
+
+create_subvol() {
+    if [[ ! -d "$1" ]]; then
+        btrfs subvolume create "$1"
+    fi
+}
+
+snapshot() {
+    backdir="$1/.snapback"
+
+    check_dir "$1"
+    create_subvol "$backdir"
+
+    name="$(date +%F)"
+
+    if [[ ! -d "$backdir/$name" ]]; then
+        btrfs subvolume snapshot -r "$1" "$backdir/$name"
+    fi
+}
+
+backup() {
+    backdir="$1/.snapback"
+    name="$(date +%F)"
+    prev="$(date -d "$name -1 days" +%F)"
+
+    check_dir "$backdir/$name"
+    create_subvol "$2"
+
+    if [[ -d "$2/$name" ]]; then
+        return
+    fi
+
+    if [[ -d "$backdir/$prev" ]]; then
+        btrfs send -p "$backdir/$prev" "$backdir/$name" | btrfs receive "$2"
+    else
+        btrfs send "$backdir/$name" | btrfs receive "$2"
+    fi
+}
+
+clean() {
+    check_dir "$1"
+
+    if [[ ! "${2-}" =~ ^[1-9]+$ ]]; then
+        echo "$2 is not a valid integer" >&2
+        exit 1
+    fi
+
+    for d in $(ls "$1" | head -n "-$2"); do
+        btrfs subvolume delete "$1/$d"
+    done
+}
+
+while getopts ':hv' opt; do
+    case "$opt" in
+        h) usage; exit ;;
+        v) echo "$VERSION"; exit ;;
+        *) usage >&2; exit 2
+    esac
+done
+
+for d in $(iniq "$config"); do
+    while IFS='=' read -r k v; do
+        case "$k" in
+            backup)
+                snapshot "$d"
+                backup "$d" "$v"
+                ;;
+            keep_snapshots)
+                clean "$d/.snapback" "$v"
+                ;;
+            keep_backups)
+                if backdir="$(iniq -p "$d.backup")"; then
+                    clean "$backdir" "$v"
+                fi
+                ;;
+        esac
+    done <<< "$(iniq -q -p "$d" -f '%k=%v' "$config")"
+done

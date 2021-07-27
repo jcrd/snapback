@@ -1,0 +1,8 @@
+[Unit]
+Description=Backup btrfs subvolume snapshots
+Requisite=local-fs.target
+After=local-fs.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/snapback

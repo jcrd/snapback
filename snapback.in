@@ -53,8 +53,10 @@ backup() {
     fi
 
     if [[ -d "$backdir/$prev" ]]; then
+        echo 'btrfs: sending incremental stream...'
         btrfs send -p "$backdir/$prev" "$backdir/$name" | btrfs receive "$2"
     else
+        echo 'btrfs: sending subvolume...'
         btrfs send "$backdir/$name" | btrfs receive "$2"
     fi
 }

@@ -5,7 +5,16 @@ snapback creates and backs up `btrfs` subvolume snapshots daily using a
 
 ## Usage
 
-Enable the timer with `systemctl enable snapback.timer`.
+```
+usage: snapback [-hrv]
+
+Enable with `systemctl enable snapback.timer`.
+
+options:
+    -h  Show help message
+    -r  Remove subvolumes and backups
+    -v  Show version
+```
 
 ## Configuration
 

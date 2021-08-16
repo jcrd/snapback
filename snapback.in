@@ -93,7 +93,7 @@ for d in $(iniq "$config"); do
                 clean "$d/.snapback" "$v"
                 ;;
             keep_backups)
-                if backdir="$(iniq -p "$d.backup")"; then
+                if backdir="$(iniq -p "$d.backup" "$config")"; then
                     clean "$backdir" "$v"
                 fi
                 ;;

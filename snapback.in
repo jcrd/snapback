@@ -9,9 +9,14 @@ readonly VERSION=@VERSION
 readonly config='/etc/snapback.conf'
 
 usage() {
-    echo 'usage: snapback [-hv]
+    echo 'usage: snapback [-hrv]
 
-Enable with `systemctl enable snapback.timer`.'
+Enable with `systemctl enable snapback.timer`.
+
+options:
+    -h  Show help message
+    -r  Remove subvolumes and backups
+    -v  Show version'
 }
 
 check_dir() {
@@ -74,9 +79,10 @@ clean() {
     done
 }
 
-while getopts ':hv' opt; do
+while getopts ':hrv' opt; do
     case "$opt" in
         h) usage; exit ;;
+        r) remove=true ;;
         v) echo "$VERSION"; exit ;;
         *) usage >&2; exit 2
     esac
@@ -86,8 +92,10 @@ for d in $(iniq "$config"); do
     while IFS='=' read -r k v; do
         case "$k" in
             backup)
-                snapshot "$d"
-                backup "$d" "$v"
+                if ! ${remove-false}; then
+                    snapshot "$d"
+                    backup "$d" "$v"
+                fi
                 ;;
             keep_snapshots)
                 clean "$d/.snapback" "$v"

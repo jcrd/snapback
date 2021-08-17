@@ -74,8 +74,8 @@ clean() {
         exit 1
     fi
 
-    for d in $(ls "$1" | head -n "-$2"); do
-        btrfs subvolume delete "$1/$d"
+    for sub in $(ls "$1" | head -n "-$2"); do
+        btrfs subvolume delete "$1/$sub"
     done
 }
 
@@ -88,23 +88,23 @@ while getopts ':hrv' opt; do
     esac
 done
 
-for d in $(iniq "$config"); do
+for dir in $(iniq "$config"); do
     while IFS='=' read -r k v; do
         case "$k" in
             backup)
                 if ! ${remove-false}; then
-                    snapshot "$d"
-                    backup "$d" "$v"
+                    snapshot "$dir"
+                    backup "$dir" "$v"
                 fi
                 ;;
             keep_snapshots)
-                clean "$d/.snapback" "$v"
+                clean "$dir/.snapback" "$v"
                 ;;
             keep_backups)
-                if backdir="$(iniq -p "$d.backup" "$config")"; then
+                if backdir="$(iniq -p "$dir.backup" "$config")"; then
                     clean "$backdir" "$v"
                 fi
                 ;;
         esac
-    done <<< "$(iniq -q -p "$d" -f '%k=%v' "$config")"
+    done <<< "$(iniq -q -p "$dir" -f '%k=%v' "$config")"
 done

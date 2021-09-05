@@ -3,6 +3,18 @@
 snapback creates and backs up `btrfs` subvolume snapshots daily using a
 **systemd** timer.
 
+## Packages
+
+* **RPM** package available from [copr][copr]. [![Copr build status](https://copr.fedorainfracloud.org/coprs/jcrd/snapback/package/snapback/status_image/last_build.png)](https://copr.fedorainfracloud.org/coprs/jcrd/snapback/package/snapback/)
+
+  Install with:
+  ```
+  dnf copr enable jcrd/snapback
+  dnf install snapback
+  ```
+
+[copr]: https://copr.fedorainfracloud.org/coprs/jcrd/snapback/
+
 ## Usage
 
 ```

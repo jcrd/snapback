@@ -10,7 +10,10 @@ Source0: {{{ git_pack }}}
 
 BuildArch: noarch
 
+BuildRequires: make
+
 Requires: bash
+Requires: btrfs-progs
 Requires: coreutils
 Requires: iniq >= 0.3.0
 

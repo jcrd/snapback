@@ -26,6 +26,13 @@ check_dir() {
     fi
 }
 
+check_space() {
+    if [[ $(df "$1" | tail -n 1 | awk '{print $5}') == 100% ]]; then
+        echo "ERROR: $1: insufficient free space" >&2
+        exit 1
+    fi
+}
+
 create_subvol() {
     if [[ ! -d "$1" ]]; then
         btrfs subvolume create "$1"
@@ -46,6 +53,8 @@ snapshot() {
 }
 
 backup() {
+    check_space "$2"
+
     backdir="$1/.snapback"
     name="$(date +%F)"
     prev="$(date -d "$name -1 days" +%F)"

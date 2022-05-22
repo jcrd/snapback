@@ -15,6 +15,7 @@ BuildRequires: make
 Requires: bash
 Requires: btrfs-progs
 Requires: coreutils
+Requires: gawk
 Requires: iniq >= 0.3.0
 
 %global debug_package %{nil}

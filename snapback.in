@@ -99,10 +99,13 @@ done
 
 for dir in $(iniq "$config"); do
     while IFS='=' read -r k v; do
+        if ! ${remove-false}; then
+            snapshot "$dir"
+        fi
+
         case "$k" in
             backup)
                 if ! ${remove-false}; then
-                    snapshot "$dir"
                     backup "$dir" "$v"
                 fi
                 ;;

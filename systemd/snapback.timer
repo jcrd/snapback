@@ -1,5 +1,5 @@
 [Unit]
-Description=Backup btrfs subvolume snapshots daily
+Description=Snapshot & backup btrfs subvolumes daily
 
 [Timer]
 OnCalendar=daily

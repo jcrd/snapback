@@ -1,6 +1,6 @@
 # snapback
 
-snapback creates and backs up `btrfs` subvolume snapshots daily using a
+snapback snapshots and backs up `btrfs` subvolume daily using a
 **systemd** timer.
 
 ## Packages
@@ -20,7 +20,7 @@ snapback creates and backs up `btrfs` subvolume snapshots daily using a
 ```
 usage: snapback [-hrv]
 
-Enable with `systemctl enable snapback.timer`.
+Enable with `systemctl --user enable snapback.timer`.
 
 options:
     -h  Show help message
@@ -30,7 +30,20 @@ options:
 
 ## Configuration
 
-Sections in the configuration file _/etc/snapback.conf_ are names of subvolumes.
+Sections in the configuration file _~/.config/snapback/snapback.conf_ are names
+of subvolumes relative to the user's home directory.
+
+For example:
+
+```ini
+[projects]
+backup=/mnt/backup
+keep_snapshots=7
+keep_backups=31
+```
+
+In the above configuration file, the section denotes a subvolume at `~/projects`.
+
 The available options are shown below:
 
 * `backup=`

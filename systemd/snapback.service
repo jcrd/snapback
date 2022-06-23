@@ -1,5 +1,5 @@
 [Unit]
-Description=Backup btrfs subvolume snapshots
+Description=Snapshot & backup btrfs subvolumes
 Requisite=local-fs.target
 After=local-fs.target
 

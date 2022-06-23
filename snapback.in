@@ -6,12 +6,13 @@ set -euo pipefail
 
 readonly VERSION=@VERSION
 
-readonly config='/etc/snapback.conf'
+readonly config="${XDG_CONFIG_HOME:-~/.config}"/snapback/snapback.conf
+readonly snapshots=~/.snapback
 
 usage() {
     echo 'usage: snapback [-hrv]
 
-Enable with `systemctl enable snapback.timer`.
+Enable with `systemctl --user enable snapback.timer`.
 
 options:
     -h  Show help message
@@ -40,51 +41,59 @@ create_subvol() {
 }
 
 snapshot() {
-    backdir="$1/.snapback"
+    dir="$1"
+    path=~/"$dir"
 
-    check_dir "$1"
-    create_subvol "$backdir"
+    check_dir "$path"
+    create_subvol "$snapshots"
 
-    name="$(date +%F)"
+    today="$(date +%F)"
 
-    if [[ ! -d "$backdir/$name" ]]; then
-        btrfs subvolume snapshot -r "$1" "$backdir/$name"
+    mkdir -p "$snapshots/$today"
+
+    if [[ ! -d "$snapshots/$today/$dir" ]]; then
+        btrfs subvolume snapshot -r "$path" "$snapshots/$today/$dir"
     fi
 }
 
 backup() {
-    check_space "$2"
+    dir="$1"
+    backdir="$2"
 
-    backdir="$1/.snapback"
-    name="$(date +%F)"
-    prev="$(date -d "$name -1 days" +%F)"
+    check_space "$backdir"
 
-    check_dir "$backdir/$name"
-    create_subvol "$2"
+    today="$(date +%F)"
+    prev="$(date -d "$today -1 days" +%F)"
 
-    if [[ -d "$2/$name" ]]; then
+    check_dir "$snapshots/$today/$dir"
+    create_subvol "$backdir"
+
+    if [[ -d "$backdir/$today/$dir" ]]; then
         return
     fi
 
-    if [[ -d "$backdir/$prev" && -d "$2/$prev" ]]; then
+    if [[ -d "$snapshots/$prev" && -d "$backdir/$prev" ]]; then
         echo 'btrfs: sending incremental stream...'
-        btrfs send -p "$backdir/$prev" "$backdir/$name" | btrfs receive "$2"
+        btrfs send -p "$snapshots/$prev/$dir" "$snapshots/$today/$dir" | btrfs receive "$backdir/$today"
     else
         echo 'btrfs: sending subvolume...'
-        btrfs send "$backdir/$name" | btrfs receive "$2"
+        btrfs send "$snapshots/$today/$dir" | btrfs receive "$backdir/$today"
     fi
 }
 
 clean() {
-    check_dir "$1"
+    dir="$1"
+    keep="$2"
 
-    if [[ ! "${2-}" =~ ^[1-9]+$ ]]; then
-        echo "$2 is not a valid integer" >&2
+    check_dir "$dir"
+
+    if [[ ! "${keep-}" =~ ^[1-9]+$ ]]; then
+        echo "$keep is not a valid integer" >&2
         exit 1
     fi
 
-    for sub in $(ls "$1" | head -n "-$2"); do
-        btrfs subvolume delete "$1/$sub"
+    for sub in $(ls "$dir" | head -n "-$keep"); do
+        btrfs subvolume delete "$dir/$sub"
     done
 }
 
@@ -96,6 +105,11 @@ while getopts ':hrv' opt; do
         *) usage >&2; exit 2
     esac
 done
+
+if [[ ! -f "$config" ]]; then
+    echo "missing config: $config" >&2
+    exit 1
+fi
 
 for dir in $(iniq "$config"); do
     while IFS='=' read -r k v; do
@@ -110,7 +124,7 @@ for dir in $(iniq "$config"); do
                 fi
                 ;;
             keep_snapshots)
-                clean "$dir/.snapback" "$v"
+                clean "$snapshots" "$v"
                 ;;
             keep_backups)
                 if backdir="$(iniq -p "$dir.backup" "$config")"; then

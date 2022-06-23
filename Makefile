@@ -14,17 +14,14 @@ snapback: snapback.in
 install:
 	mkdir -p $(DESTDIR)$(BINPREFIX)
 	cp -p snapback $(DESTDIR)$(BINPREFIX)
-	mkdir -p $(DESTDIR)/etc
-	cp -p snapback.conf $(DESTDIR)/etc
-	mkdir -p $(DESTDIR)$(LIBPREFIX)/systemd/system
-	cp -p systemd/snapback.service $(DESTDIR)$(LIBPREFIX)/systemd/system
-	cp -p systemd/snapback.timer $(DESTDIR)$(LIBPREFIX)/systemd/system
+	mkdir -p $(DESTDIR)$(LIBPREFIX)/systemd/user
+	cp -p systemd/snapback.service $(DESTDIR)$(LIBPREFIX)/systemd/user
+	cp -p systemd/snapback.timer $(DESTDIR)$(LIBPREFIX)/systemd/user
 
 uninstall:
 	rm -f $(DESTDIR)$(BINPREFIX)/snapback
-	rm -f $(DESTDIR)/etc/snapback.conf
-	rm -f $(DESTDIR)$(LIBPREFIX)/systemd/system/snapback.service
-	rm -f $(DESTDIR)$(LIBPREFIX)/systemd/system/snapback.timer
+	rm -f $(DESTDIR)$(LIBPREFIX)/systemd/user/snapback.service
+	rm -f $(DESTDIR)$(LIBPREFIX)/systemd/user/snapback.timer
 
 clean:
 	rm -f snapback

@@ -18,15 +18,23 @@ snapback snapshots and backs up `btrfs` subvolume daily using a
 ## Usage
 
 ```
-usage: snapback [-hrv]
+usage: snapback [-hriv]
 
 Enable with `systemctl --user enable snapback.timer`.
 
 options:
     -h  Show help message
     -r  Remove subvolumes and backups
+    -i  Initialize subvolumes in config
     -v  Show version
 ```
+
+### Initialization
+
+All directories specified in the configuration file must be subvolumes.
+When given the `-i` flag, snapback will initialize these subvolumes.
+If the subvolume's path is a directory, its contents are moved into the newly
+created subvolume.
 
 ## Configuration
 

@@ -1,7 +1,5 @@
 [Unit]
 Description=Snapshot & backup btrfs subvolumes
-Requisite=local-fs.target
-After=local-fs.target
 
 [Service]
 Type=oneshot

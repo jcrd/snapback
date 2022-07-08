@@ -37,6 +37,7 @@ check_space() {
 
 create_subvol() {
     if [[ ! -d "$1" ]]; then
+        echo "Creating subvolume $1"
         btrfs subvolume create "$1"
     fi
 }
@@ -54,7 +55,7 @@ init_subvol() {
         [[ -d "$1" ]] && mv "$1" "$1".tmp
     fi
 
-    btrfs subvolume create "$1"
+    create_subvol "$1"
 
     if [[ -d "$1".tmp ]]; then
         (
@@ -77,6 +78,7 @@ snapshot() {
     mkdir -p "$snapshots/$today"
 
     if [[ ! -d "$snapshots/$today/$dir" ]]; then
+        echo "Creating snapshot $path -> $snapshots/$today/$dir"
         btrfs subvolume snapshot -r "$path" "$snapshots/$today/$dir"
     fi
 }
@@ -98,10 +100,10 @@ backup() {
     fi
 
     if [[ -d "$snapshots/$prev" && -d "$backdir/$prev" ]]; then
-        echo 'btrfs: sending incremental stream...'
+        echo "Backing up $snapshots/$today/$dir: sending incremental stream"
         btrfs send -p "$snapshots/$prev/$dir" "$snapshots/$today/$dir" | btrfs receive "$backdir/$today"
     else
-        echo 'btrfs: sending subvolume...'
+        echo "Backing up $snapshots/$today/$dir: sending subvolume"
         btrfs send "$snapshots/$today/$dir" | btrfs receive "$backdir/$today"
     fi
 }
@@ -117,6 +119,7 @@ clean() {
     fi
 
     for sub in $(find "$path" -maxdepth 2 -name "$dir" | head -n "-$keep"); do
+        echo "Cleaning up $sub"
         btrfs property set -ts "$sub" ro false
         chmod +w -R "$sub"
         rm -rf "$sub"

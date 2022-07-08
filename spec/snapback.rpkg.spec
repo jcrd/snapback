@@ -15,6 +15,7 @@ BuildRequires: make
 Requires: bash
 Requires: btrfs-progs
 Requires: coreutils
+Requires: findutils
 Requires: gawk
 Requires: iniq >= 0.3.0
 

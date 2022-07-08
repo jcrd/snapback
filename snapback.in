@@ -108,17 +108,22 @@ backup() {
 
 clean() {
     dir="$1"
-    keep="$2"
-
-    check_dir "$dir"
+    path="$2"
+    keep="$3"
 
     if [[ ! "${keep-}" =~ ^[1-9]+$ ]]; then
         echo "$keep is not a valid integer" >&2
         exit 1
     fi
 
-    for sub in $(ls "$dir" | head -n "-$keep"); do
-        btrfs subvolume delete "$dir/$sub"
+    for sub in $(find "$path" -maxdepth 2 -name "$dir" | head -n "-$keep"); do
+        btrfs property set -ts "$sub" ro false
+        chmod +w -R "$sub"
+        rm -rf "$sub"
+    done
+
+    for d in $(find "$path" -maxdepth 1 -empty); do
+        rmdir "$d"
     done
 }
 
@@ -157,11 +162,11 @@ for dir in $(iniq "$config"); do
                 fi
                 ;;
             keep_snapshots)
-                clean "$snapshots" "$v"
+                clean "$dir" "$snapshots" "$v"
                 ;;
             keep_backups)
                 if backdir="$(iniq -p "$dir.backup" "$config")"; then
-                    clean "$backdir" "$v"
+                    clean "$dir" "$backdir" "$v"
                 fi
                 ;;
         esac

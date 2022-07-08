@@ -150,6 +150,8 @@ if ${init-false}; then
 fi
 
 for dir in $(iniq "$config"); do
+    p="${dir//\./\\.}"
+
     while IFS='=' read -r k v; do
         if ! ${remove-false}; then
             snapshot "$dir"
@@ -165,10 +167,10 @@ for dir in $(iniq "$config"); do
                 clean "$dir" "$snapshots" "$v"
                 ;;
             keep_backups)
-                if backdir="$(iniq -p "$dir.backup" "$config")"; then
+                if backdir="$(iniq -p "$p.backup" "$config")"; then
                     clean "$dir" "$backdir" "$v"
                 fi
                 ;;
         esac
-    done <<< "$(iniq -q -p "$dir" -f '%k=%v' "$config")"
+    done <<< "$(iniq -q -p "$p" -f '%k=%v' "$config")"
 done

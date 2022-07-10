@@ -6,7 +6,7 @@ set -euo pipefail
 
 readonly VERSION=@VERSION
 
-readonly config="${XDG_CONFIG_HOME:-~/.config}"/snapback/snapback.conf
+readonly config="${XDG_CONFIG_HOME:-$HOME/.config}"/snapback/snapback.conf
 readonly snapshots=~/.snapback
 
 usage() {

@@ -1,11 +1,11 @@
 Name: snapback
-Version: 0.2.0
+Version: 0.2.1
 Release: 1%{?dist}
 Summary: Snapshot & backup btrfs subvolumes
 
 License: MIT
 URL: https://github.com/jcrd/snapback
-Source0: https://github.com/jcrd/snapback/archive/v0.2.0.tar.gz
+Source0: https://github.com/jcrd/snapback/archive/v0.2.1.tar.gz
 
 BuildArch: noarch
 
@@ -39,6 +39,9 @@ snapback snapshots and backs up btrfs subvolume daily.
 /usr/lib/systemd/user/snapback.timer
 
 %changelog
+* Thu Jul 14 2022 James Reed <james@twiddlingbits.net> - 0.2.1-1
+- Release v0.2.1
+
 * Sun Jun 26 2022 James Reed <james@twiddlingbits.net> - 0.2.0-1
 - Release v0.2.0
 

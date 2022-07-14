@@ -1,6 +1,6 @@
 Name: snapback
 Version: 0.2.1
-Release: 1%{?dist}
+Release: 2%{?dist}
 Summary: Snapshot & backup btrfs subvolumes
 
 License: MIT
@@ -14,6 +14,7 @@ BuildRequires: make
 Requires: bash
 Requires: btrfs-progs
 Requires: coreutils
+Requires: findutils
 Requires: gawk
 Requires: iniq >= 0.3.0
 
@@ -39,6 +40,9 @@ snapback snapshots and backs up btrfs subvolume daily.
 /usr/lib/systemd/user/snapback.timer
 
 %changelog
+* Thu Jul 14 2022 James Reed <james@twiddlingbits.net> - 0.2.1-2
+- Add `findutils` requirement
+
 * Thu Jul 14 2022 James Reed <james@twiddlingbits.net> - 0.2.1-1
 - Release v0.2.1
 
